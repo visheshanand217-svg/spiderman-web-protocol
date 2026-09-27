@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPIDERMAN — Web Protocol</title>
+<meta name="description" content="SPIDERMAN themed interactive event experience for the GeeksForGeeks Student Chapter, Bennett University.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#e10613;
+  --red2:#ff2935;
+  --deep:#080607;
+  --ink:#0e0d0d;
+  --white:#f7f3f1;
+  --muted:#bdb3b0;
+  --line:rgba(255,255,255,.13);
+  --glass:rgba(10,7,8,.64);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:#070506;
+  color:var(--white);
+  font-family:Inter,system-ui,sans-serif;
+  overflow-x:hidden;
+}
+body:before{
+  content:"";
+  position:fixed; inset:0; z-index:-5;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.20),rgba(0,0,0,.88) 86%),
+    url("spider-bg.jpg") center top/cover no-repeat;
+  transform:scale(1.04);
+  animation:breath 12s ease-in-out infinite alternate;
+}
+body:after{
+  content:"";
+  position:fixed; inset:0; z-index:-4; pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 34%, transparent 0 22%, rgba(0,0,0,.32) 62%, rgba(0,0,0,.9) 100%),
+    linear-gradient(90deg,rgba(0,0,0,.62),transparent 45%,rgba(0,0,0,.54));
+}
+#webCanvas{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.66}
+.noise{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E")}
+
+@keyframes breath{to{transform:scale(1.09) translateY(-8px)}}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(225,6,19,.02),0 0 42px rgba(225,6,19,.36)}}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes scan{to{transform:translateY(100vh)}}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(20px,5vw,72px);
+  background:linear-gradient(180deg,rgba(0,0,0,.72),transparent);
+  backdrop-filter:blur(5px);
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;font-weight:800;letter-spacing:.12em}
+.brandMark{width:30px;height:30px;border:2px solid #fff;border-radius:50%;position:relative;box-shadow:0 0 20px rgba(225,6,19,.65)}
+.brandMark:before,.brandMark:after{content:"";position:absolute;background:#fff;left:50%;top:2px;transform-origin:50% 13px}
+.brandMark:before{width:2px;height:22px;transform:translateX(-50%)}
+.brandMark:after{height:2px;width:22px;transform:translate(-50%,11px)}
+nav a{color:#ddd;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-left:28px;transition:.25s}
+nav a:hover{color:#fff;text-shadow:0 0 18px #e10613}
+.navCta{border:1px solid rgba(255,255,255,.32);padding:11px 15px;border-radius:999px;background:rgba(255,255,255,.07)}
+
+.hero{
+  min-height:100svh;
+  display:flex;align-items:flex-end;
+  padding:150px clamp(20px,7vw,100px) 86px;
+  position:relative;
+}
+.heroInner{max-width:840px;animation:rise .9s ease both}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+.kicker i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 18px var(--red);animation:pulse 2s infinite}
+h1{
+  font-family:Anton,Impact,sans-serif;
+  font-size:clamp(92px,17vw,245px);
+  line-height:.79;
+  letter-spacing:-.035em;
+  margin:18px 0 25px;
+  color:#fff;
+  text-shadow:0 5px 0 #7b0208, 0 15px 55px rgba(0,0,0,.65);
+}
+h1 span{display:block;color:var(--red);text-shadow:0 3px 0 #560007,0 0 45px rgba(225,6,19,.28)}
+.heroCopy{max-width:610px;color:#ded7d4;font-size:16px;line-height:1.75}
+.heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:50px;padding:0 22px;border-radius:4px;text-decoration:none;
+  text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:800;
+  transition:.25s;cursor:pointer;border:1px solid transparent;
+}
+.btnPrimary{background:var(--red);color:#fff;box-shadow:0 10px 30px rgba(225,6,19,.25)}
+.btnPrimary:hover{transform:translateY(-3px);box-shadow:0 16px 45px rgba(225,6,19,.42)}
+.btnGhost{border-color:rgba(255,255,255,.3);color:#fff;background:rgba(0,0,0,.25);backdrop-filter:blur(8px)}
+.btnGhost:hover{background:rgba(255,255,255,.1)}
+.scrollHint{position:absolute;right:clamp(20px,6vw,80px);bottom:50px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.25em;color:#bdb3b0}
+
+.section{padding:110px clamp(20px,7vw,100px);position:relative}
+.sectionInner{max-width:1200px;margin:auto}
+.eyebrow{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:#ff6a70;font-weight:800}
+.section h2{font-family:Anton,Impact,sans-serif;font-size:clamp(48px,7vw,92px);line-height:.9;margin:14px 0 18px;text-transform:uppercase}
+.sectionLead{color:#bfb5b2;max-width:650px;line-height:1.7}
+.glass{
+  background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(0,0,0,.5));
+  border:1px solid var(--line);
+  box-shadow:0 30px 80px rgba(0,0,0,.32);
+  backdrop-filter:blur(14px);
+}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:45px}
+.stat{padding:28px;border-radius:8px}
+.stat strong{font-family:Anton;font-size:42px;color:#fff;display:block}
+.stat span{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#aaa}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:45px}
+.card{min-height:260px;padding:28px;border-radius:8px;position:relative;overflow:hidden}
+.card:after{content:"";position:absolute;width:140px;height:140px;border-radius:50%;right:-55px;bottom:-55px;background:rgba(225,6,19,.22);filter:blur(12px)}
+.cardNum{font-family:Anton;font-size:48px;color:var(--red);opacity:.75}
+.card h3{font-family:Anton;font-size:32px;text-transform:uppercase;margin:18px 0 10px}
+.card p{color:#bdb3b0;line-height:1.65;font-size:14px}
+
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:50px;border-top:1px solid var(--line)}
+.step{padding:28px 22px 22px;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:0}
+.step:before{content:"";position:absolute;top:-5px;left:22px;width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 18px var(--red)}
+.step b{font-size:10px;letter-spacing:.18em;color:#ff777c}
+.step h3{margin:12px 0 8px;font-size:18px}
+.step p{font-size:13px;color:#9f9693;line-height:1.6}
+
+.register{display:grid;grid-template-columns:1fr .9fr;gap:28px;align-items:stretch}
+.register .copy{padding:42px;border-radius:10px}
+.register h2{margin-top:8px}
+form{padding:30px;border-radius:10px;display:grid;gap:13px}
+input,select,textarea{
+  width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.16);
+  color:#fff;border-radius:4px;padding:15px;font:inherit;outline:none;
+}
+.successMessage{
+  display:none;
+  align-items:center;
+  gap:12px;
+  padding:14px 15px;
+  border:1px solid rgba(91,255,146,.35);
+  background:rgba(18,80,42,.22);
+  border-radius:5px;
+  animation:rise .45s ease both;
+}
+.successMessage.show{display:flex}
+.successIcon{
+  width:30px;height:30px;display:grid;place-items:center;
+  border-radius:50%;background:#42d879;color:#07130b;font-weight:900;
+  box-shadow:0 0 22px rgba(66,216,121,.3);
+}
+.successMessage strong{display:block;font-size:13px;letter-spacing:.04em}
+.successMessage small{display:block;color:#aeb8b2;margin-top:3px;font-size:11px}
+
+input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,6,19,.12)}
+textarea{min-height:100px;resize:vertical}
+footer{padding:35px clamp(20px,7vw,100px);border-top:1px solid var(--line);color:#777;font-size:11px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer strong{color:#aaa}
+
+#scanline{position:fixed;left:0;right:0;height:1px;background:rgba(255,50,50,.12);z-index:19;pointer-events:none;animation:scan 8s linear infinite}
+
+@media(max-width:900px){
+  nav .links{display:none}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}
+  .timeline{grid-template-columns:1fr 1fr}
+  .step:nth-child(2){border-right:0}
+  .register{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .hero{padding-top:130px;padding-bottom:70px}
+  h1{font-size:27vw}
+  .stats{grid-template-columns:1fr 1fr}
+  .timeline{grid-template-columns:1fr}
+  .step{border-right:0;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:0}
+  .scrollHint{display:none}
+  footer{display:block}
+  footer div+div{margin-top:10px}
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div id="scanline"></div>
+<canvas id="webCanvas"></canvas>
+
+<nav>
+  <a href="#" class="brand"><span class="brandMark"></span> SPIDERMAN</a>
+  <div class="links">
+    <a href="#mission">Mission</a>
+    <a href="#challenges">Challenges</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#register" class="navCta">Register</a>
+  </div>
+</nav>
+
+<main>
+<section class="hero">
+  <div class="heroInner">
+    <div class="kicker"><i></i> GFG × Bennett University · Spider Protocol Online</div>
+    <h1>SPIDER<span>MAN</span></h1>
+    <p class="heroCopy">
+      A cinematic coding arena where speed, logic and instinct meet.
+      Enter the web. Solve the challenge. Move before the clock catches you.
+    </p>
+    <div class="heroActions">
+      <a class="btn btnPrimary" href="#register">Enter the Web →</a>
+      <a class="btn btnGhost" href="#mission">Explore Mission</a>
+    </div>
+  </div>
+  <div class="scrollHint">SCROLL TO SWING ↓</div>
+</section>
+
+<section class="section" id="mission">
+  <div class="sectionInner">
+    <div class="eyebrow">01 / Spider Sense</div>
+    <h2>THE MISSION</h2>
+    <p class="sectionLead">
+      Built for the GeeksForGeeks Student Chapter at Bennett University.
+      The interface turns the event into a digital Spider-Verse: red-black atmosphere,
+      web geometry, live motion and challenge-driven interaction.
+    </p>
+    <div class="stats">
+      <div class="stat glass"><strong>03</strong><span>Challenge Rounds</span></div>
+      <div class="stat glass"><strong>60</strong><span>Minutes</span></div>
+      <div class="stat glass"><strong>01</strong><span>Web Protocol</span></div>
+      <div class="stat glass"><strong>∞</strong><span>Ways to Swing</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="challenges">
+  <div class="sectionInner">
+    <div class="eyebrow">02 / Web Challenges</div>
+    <h2>CHOOSE YOUR MOVE</h2>
+    <div class="cards">
+      <article class="card glass">
+        <div class="cardNum">01</div>
+        <h3>Spider Sense</h3>
+        <p>Read the problem before it strikes. Decode patterns, constraints and hidden edge cases.</p>
+      </article>
+      <article class="card glass">
+        <div class="cardNum">02</div>
+        <h3>Web Swing</h3>
+        <p>Build the fastest path through a timed DSA challenge. Precision matters as much as speed.</p>
+      </article>
+      <article class="card glass">
+        <div class="cardNum">03</div>
+        <h3>Final Leap</h3>
+        <p>One final boss-level problem. Push your logic to the limit and finish the protocol.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="timeline">
+  <div class="sectionInner">
+    <div class="eyebrow">03 / Event Protocol</div>
+    <h2>THE SWING</h2>
+    <div class="timeline">
+      <div class="step"><b>01 · 10:00</b><h3>Suit Up</h3><p>Check in, form your team and get the rules.</p></div>
+      <div class="step"><b>02 · 10:15</b><h3>Spider Sense</h3><p>Warm-up challenge. Find the hidden signal.</p></div>
+      <div class="step"><b>03 · 10:35</b><h3>Web Attack</h3><p>Main DSA round. The clock starts moving.</p></div>
+      <div class="step"><b>04 · 11:15</b><h3>Final Leap</h3><p>Submit the last solution and reveal the leaderboard.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="register">
+  <div class="sectionInner register">
+    <div class="copy glass">
+      <div class="eyebrow">04 / Join The Web</div>
+      <h2>READY TO<br>SWING?</h2>
+      <p class="sectionLead">Replace this form with your real registration link before submission. The page is designed to make the CTA impossible to miss.</p>
+      <div class="heroActions"><a class="btn btnPrimary" href="#register">REGISTER NOW</a></div>
+    </div>
+    <form class="glass" id="registrationForm">
+      <input aria-label="Name" name="name" required placeholder="Your name">
+      <input aria-label="Email" name="email" type="email" required placeholder="Email address">
+      <input aria-label="University ID" name="studentId" placeholder="University / Student ID">
+      <select aria-label="Challenge track" name="track">
+        <option value="">Choose challenge track</option>
+        <option>Spider Sense</option>
+        <option>Web Swing</option>
+        <option>Final Leap</option>
+      </select>
+      <textarea aria-label="Message" name="superpower" placeholder="What's your coding superpower?"></textarea>
+      <button class="btn btnPrimary" type="submit">ENTER THE WEB →</button>
+      <div class="successMessage" id="successMessage" role="status" aria-live="polite">
+        <span class="successIcon">✓</span>
+        <div><strong>You're in the web!</strong><small>Your registration details have been captured for this demo.</small></div>
+      </div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div><strong>GFG × Bennett University</strong> · SPIDERMAN Web Protocol</div>
+  <div>Designed as an original event interface inspired by comic-book / Spider-Man aesthetics.</div>
+</footer>
+
+<script>
+// Registration UI: show an in-page success state instead of a browser notification.
+const registrationForm = document.getElementById('registrationForm');
+const successMessage = document.getElementById('successMessage');
+
+registrationForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!registrationForm.checkValidity()) {
+    registrationForm.reportValidity();
+    return;
+  }
+  successMessage.classList.add('show');
+  registrationForm.querySelector('button[type="submit"]').textContent = 'REGISTERED ✓';
+  registrationForm.querySelector('button[type="submit"]').disabled = true;
+  registrationForm.querySelectorAll('input, select, textarea').forEach(field => field.disabled = true);
+});
+
+// Live animated web background: radial web geometry + drifting particles + cursor response.
+const canvas = document.getElementById('webCanvas');
+const ctx = canvas.getContext('2d');
+let w, h, dpr, mx = 0.5, my = 0.45, t = 0;
+const particles = [];
+
+function resize(){
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  w = innerWidth; h = innerHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  canvas.style.width = w+'px'; canvas.style.height = h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function seed(){
+  particles.length = 0;
+  const count = Math.min(70, Math.floor(w*h/17000));
+  for(let i=0;i<count;i++){
+    particles.push({
+      x:Math.random()*w,y:Math.random()*h,
+      r:Math.random()*1.8+.3,
+      s:Math.random()*.28+.05,
+      a:Math.random()*.65+.12,
+      p:Math.random()*Math.PI*2
+    });
+  }
+}
+function drawWeb(){
+  const cx = w*(.5+(mx-.5)*.045);
+  const cy = h*(.42+(my-.5)*.04);
+  const maxR = Math.max(w,h)*.72;
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.lineWidth = .7;
+  ctx.strokeStyle = 'rgba(255,235,235,.12)';
+  for(let ray=0;ray<18;ray++){
+    const a = ray*Math.PI*2/18;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(Math.cos(a)*maxR, Math.sin(a)*maxR);
+    ctx.stroke();
+  }
+  for(let ring=1;ring<9;ring++){
+    const r = maxR*(ring/9);
+    ctx.beginPath();
+    for(let i=0;i<=18;i++){
+      const a=i*Math.PI*2/18;
+      const wobble = 1 + Math.sin(a*3 + ring*.7 + t*.2)*.015;
+      const x=Math.cos(a)*r*wobble, y=Math.sin(a)*r*wobble;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawParticles(){
+  for(const p of particles){
+    p.y -= p.s;
+    p.x += Math.sin(t*.7+p.p)*.12;
+    if(p.y<-10) p.y=h+10;
+    ctx.beginPath();
+    ctx.fillStyle=`rgba(255,90,95,${p.a})`;
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+function animate(){
+  t += .01;
+  ctx.clearRect(0,0,w,h);
+  drawWeb();
+  drawParticles();
+  requestAnimationFrame(animate);
+}
+addEventListener('resize',()=>{resize();seed()});
+addEventListener('pointermove',e=>{mx=e.clientX/w;my=e.clientY/h});
+resize(); seed(); animate();
+</script>
+</body>
+</html>
